@@ -35,29 +35,60 @@ steps:
       git clone https://github.com/acidanthera/Lilu.git
       cd Lilu
       xcodebuild -configuration Debug -arch x86_64
-      unzip build/*.zip
-      cp -f build/Lilu.kext ../
-      hackinLiluPlugins=('https://github.com/acidanthera/AirportBrcmFixup.git'
-      'https://github.com/acidanthera/AppleALC.git'
-      'https://github.com/osy86/AMFIExemption.git'
-      'https://github.com/chunnann/ATH9KFixup.git'
-      'https://github.com/acidanthera/BT4LEContinuityFixup.git'
-      'https://github.com/acidanthera/CPUFriend.git'
-      'https://github.com/lvs1974/CpuTscSync.git'
-      'https://github.com/acidanthera/DebugEnhancer.git'
-      'https://github.com/Goldfish64/DiskArbitrationFixup.git'
-      'https://github.com/acidanthera/HibernationFixup.git'
-      'https://github.com/cdf/Innie.git'
-      'https://github.com/IOIIIO/MacProMemoryNotificationDisabler.git'
-      'https://github.com/cdf/NightShiftEnabler.git'
-      'https://github.com/al3xtjames/NoTouchID.git'
-      'https://github.com/acidanthera/NVMeFix.git'
-      'https://github.com/acidanthera/RTCMemoryFixup.git'
-      'https://github.com/Goldfish64/SystemProfilerMemoryFixup.git'
-      'https://github.com/osy86/ThunderboltReset.git'
-      'https://github.com/acidanthera/VirtualSMC.git'
-      'https://github.com/acidanthera/WhateverGreen.git')
-      hackinPlugins=('https://github.com/acidanthera/IntelMausi.git'
-      'https://github.com/Mieze/AtherosE2200Ethernet.git'
-      'https://github.com/Mieze/RTL8111_driver_for_OS_X.git'
-      '')
+      xcodebuild -configuration Release -arch x86_64
+      unzip build/Debug/*.zip
+      cp -Rf build/Debug/*.kext ../
+      cp -f build/Debug/*.zip ../
+      cp -f build/Debug/*.zip ../
+      cd ../
+      rm -rf Lilu
+
+      hackinLiluPlugins=('AirportBrcmFixup,https://github.com/acidanthera/AirportBrcmFixup.git'
+      'AppleALC,https://github.com/acidanthera/AppleALC.git'
+      'AMFIExemption,https://github.com/osy86/AMFIExemption.git'
+      'ATH9KFixup,https://github.com/chunnann/ATH9KFixup.git'
+      'BT4LEContinuityFixup,https://github.com/acidanthera/BT4LEContinuityFixup.git'
+      'CPUFriend,https://github.com/acidanthera/CPUFriend.git'
+      'CpuTscSync,https://github.com/lvs1974/CpuTscSync.git'
+      'DebugEnhancer,https://github.com/acidanthera/DebugEnhancer.git'
+      'DiskArbitrationFixup,https://github.com/Goldfish64/DiskArbitrationFixup.git'
+      'HibernationFixup,https://github.com/acidanthera/HibernationFixup.git'
+      'Innie,https://github.com/cdf/Innie.git'
+      'MacProMemoryNotificationDisabler,https://github.com/IOIIIO/MacProMemoryNotificationDisabler.git'
+      'NightShiftEnabler,https://github.com/cdf/NightShiftEnabler.git'
+      'NoTouchID,https://github.com/al3xtjames/NoTouchID.git'
+      'NVMeFix,https://github.com/acidanthera/NVMeFix.git'
+      'RTCMemoryFixup,https://github.com/acidanthera/RTCMemoryFixup.git'
+      'SystemProfilerMemoryFixup,https://github.com/Goldfish64/SystemProfilerMemoryFixup.git'
+      'ThunderboltReset,https://github.com/osy86/ThunderboltReset.git'
+      'VirtualSMC,https://github.com/acidanthera/VirtualSMC.git'
+      'WhateverGreen,https://github.com/acidanthera/WhateverGreen.git')
+
+      hackinPlugins=('IntelMausi,https://github.com/acidanthera/IntelMausi.git'
+      'AtherosE2200Ethernet,https://github.com/Mieze/AtherosE2200Ethernet.git'
+      'RTL8111_driver_for_OS_X,https://github.com/Mieze/RTL8111_driver_for_OS_X.git')
+
+      for plugin in ${hackinLiluPlugins[*]}; do
+        git clone -q ${plugin##*,} ${plugin%,*} -b master --depth=1
+        cd ${plugin%,*}
+        cp -Rf ../*.kext .
+        xcodebuild -configuration Release -arch x86_64
+        xcodebuild -configuration Debug -arch x86_64
+        cp -f build/Release/*.zip ../
+        cp -f build/Debug/*.zip ../
+        cd ../
+        rm -rf cd ${plugin%,*}
+      done;
+
+      for plugin in ${hackinPlugins[*]}; do
+        git clone -q ${plugin##*,} ${plugin%,*} -b master --depth=1
+        cd ${plugin%,*}
+        xcodebuild -configuration Release -arch x86_64
+        xcodebuild -configuration Debug -arch x86_64
+        cp -f build/Release/*.zip ../
+        cp -f build/Debug/*.zip ../
+        cd ../
+        rm -rf cd ${plugin%,*}
+      done;
+
+      rm -rf *.kext
