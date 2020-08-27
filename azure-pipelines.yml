@@ -10,10 +10,54 @@ pool:
   vmImage: 'macOS-latest'
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
-
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+- task: Bash@3
+  condition: or(eq(variables['BuildCheck'], 'True'), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
+  displayName: Build OpenCorePkg
+  inputs:
+    targetType: 'inline'
+    script: |
+      #!/bin/bash
+      cd ../b
+      git clone --depth=30 https://github.com/acidanthera/OpenCorePkg.git
+      cd OpenCorePkg
+      # Patch Build Tool
+      curl -# -L -O "https://raw.githubusercontent.com/acidanthera/ocbuild/master/efibuild.sh"
+      chmod +x efibuild.sh
+      
+      sed -i -e 's/--depth=1/--depth=30/g' efibuild.sh
+      sed -i -e 's/.dsc"/.dsc" \| xcpretty/g' efibuild.sh
+      sed -i -e 's/updaterepo "https\:\/\/github.com\/acidanthera\/audk" UDK master || exit 1/git clone --recursive https\:\/\/github.com\/acidanthera\/audk --depth=1 UDK || exit 1/' efibuild.sh
+      sed -i -e 's/src=.*/src=\$\(cat efibuild.sh\) \&\& eval \"\$src\" \|\| exit 1/g' build_oc.tool
+      sed -i -e 's/ARCHS=.*/ARCHS=\(X64\)/g' build_oc.tool
+      ./build_oc.tool
+      cp -f Binaries/* ../
+      cd ../
+      git clone https://github.com/acidanthera/Lilu.git
+      cd Lilu
+      xcodebuild -configuration Debug -arch x86_64
+      unzip build/*.zip
+      cp -f build/Lilu.kext ../
+      hackinLiluPlugins=('https://github.com/acidanthera/AirportBrcmFixup.git'
+      'https://github.com/acidanthera/AppleALC.git'
+      'https://github.com/osy86/AMFIExemption.git'
+      'https://github.com/chunnann/ATH9KFixup.git'
+      'https://github.com/acidanthera/BT4LEContinuityFixup.git'
+      'https://github.com/acidanthera/CPUFriend.git'
+      'https://github.com/lvs1974/CpuTscSync.git'
+      'https://github.com/acidanthera/DebugEnhancer.git'
+      'https://github.com/Goldfish64/DiskArbitrationFixup.git'
+      'https://github.com/acidanthera/HibernationFixup.git'
+      'https://github.com/cdf/Innie.git'
+      'https://github.com/IOIIIO/MacProMemoryNotificationDisabler.git'
+      'https://github.com/cdf/NightShiftEnabler.git'
+      'https://github.com/al3xtjames/NoTouchID.git'
+      'https://github.com/acidanthera/NVMeFix.git'
+      'https://github.com/acidanthera/RTCMemoryFixup.git'
+      'https://github.com/Goldfish64/SystemProfilerMemoryFixup.git'
+      'https://github.com/osy86/ThunderboltReset.git'
+      'https://github.com/acidanthera/VirtualSMC.git'
+      'https://github.com/acidanthera/WhateverGreen.git')
+      hackinPlugins=('https://github.com/acidanthera/IntelMausi.git'
+      'https://github.com/Mieze/AtherosE2200Ethernet.git'
+      'https://github.com/Mieze/RTL8111_driver_for_OS_X.git'
+      '')
