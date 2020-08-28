@@ -152,4 +152,19 @@ steps:
     contents: '**'
     targetFolder: '/var/www/downloads/HackinPlugins'
     readyTimeout: '20000'
-       
+
+- task: GitHubRelease@1
+  inputs:
+    gitHubConnection: 'github'
+    repositoryName: '$(Build.Repository.Name)'
+    action: 'create'
+    target: '$(Build.SourceVersion)'
+    tagSource: 'gitTag'
+    tagPattern: '$(BuildDate)'
+    title: '$(BuildDate)'
+    releaseNotesSource: 'inline'
+    releaseNotesInline: 'Hackintosh全家桶每日更新'
+    assets: '$(Build.ArtifactStagingDirectory)/Artifacts/*.zip'
+    isDraft: true
+    addChangeLog: false
+
