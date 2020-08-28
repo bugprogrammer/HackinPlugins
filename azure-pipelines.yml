@@ -138,5 +138,11 @@ steps:
       cp -f HackinPlugins_`date +%Y%m%d%H`.zip ../a/Artifacts
       ls $(Build.ArtifactStagingDirectory)/Artifacts
 
-      
+- task: CopyFilesOverSSH@0
+  inputs:
+    sshEndpoint: 'vps'
+    sourceFolder: '$(Build.ArtifactStagingDirectory)/Artifacts'
+    contents: '**'
+    targetFolder: '/var/www/downloads/HackinPlugins'
+    readyTimeout: '20000'
        
