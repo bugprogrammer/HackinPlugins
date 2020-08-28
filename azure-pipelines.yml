@@ -61,6 +61,8 @@ steps:
     targetType: 'inline'
     script: |
       #!/bin/bash
+      BD="$(date +"%Y-%m-%d")" # Build Date
+      echo "##vso[task.setvariable variable=BuildDate]$BD"
       cd ../b
       git clone --depth=30 https://github.com/acidanthera/OpenCorePkg.git
       cd OpenCorePkg
@@ -165,7 +167,7 @@ steps:
     releaseNotesSource: 'inline'
     releaseNotesInline: 'Hackintosh全家桶每日编译更新'
     assets: '$(Build.ArtifactStagingDirectory)/Artifacts/*.zip'
-    isDraft: true
+    isPreRelease: true
     addChangeLog: false
 
 
