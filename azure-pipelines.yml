@@ -11,6 +11,51 @@ pool:
 
 steps:
 - task: Bash@3
+  displayName: initCheck
+  inputs:
+    targetType: 'inline'
+    script: |
+      #!/bin/bash
+      # nasm
+      pushd /tmp >/dev/null || exit 1
+      rm -rf nasm-mac64.zip
+      curl -OL "https://github.com/acidanthera/ocbuild/raw/master/external/nasm-mac64.zip" || exit 1
+      nasmzip=$(cat nasm-mac64.zip)
+      rm -rf nasm-*
+      curl -OL "https://github.com/acidanthera/ocbuild/raw/master/external/${nasmzip}" || exit 1
+      unzip -q "${nasmzip}" nasm*/nasm nasm*/ndisasm || exit 1
+      sudo mkdir -p /usr/local/bin || exit 1
+      sudo mv nasm*/nasm /usr/local/bin/ || exit 1
+      sudo mv nasm*/ndisasm /usr/local/bin/ || exit 1
+      rm -rf "${nasmzip}" nasm-*
+      popd >/dev/null || exit 1
+
+      # iasl
+      pushd /tmp >/dev/null || exit 1
+      rm -rf iasl-macosx.zip
+      curl -OL "https://github.com/acidanthera/ocbuild/raw/master/external/iasl-macosx.zip" || exit 1
+      iaslzip=$(cat iasl-macosx.zip)
+      rm -rf iasl
+      curl -OL "https://github.com/acidanthera/ocbuild/raw/master/external/${iaslzip}" || exit 1
+      unzip -q "${iaslzip}" iasl || exit 1
+      sudo mkdir -p /usr/local/bin || exit 1
+      sudo mv iasl /usr/local/bin/ || exit 1
+      rm -rf "${iaslzip}" iasl
+      popd >/dev/null || exit 1
+
+      # mtoc
+      pushd /tmp >/dev/null || exit 1
+      rm -f mtoc mtoc-mac64.zip
+      curl -OL "https://github.com/acidanthera/ocbuild/raw/master/external/mtoc-mac64.zip" || exit 1
+      mtoczip=$(cat mtoc-mac64.zip)
+      rm -rf mtoc-*
+      curl -OL "https://github.com/acidanthera/ocbuild/raw/master/external/${mtoczip}" || exit 1
+      unzip -q "${mtoczip}" mtoc || exit 1
+      sudo mkdir -p /usr/local/bin || exit 1
+      sudo rm -f /usr/local/bin/mtoc /usr/local/bin/mtoc.NEW || exit 1
+      sudo cp mtoc /usr/local/bin/mtoc || exit 1
+      popd >/dev/null || exit 1
+- task: Bash@3
   displayName: Build OpenCorePkg
   inputs:
     targetType: 'inline'
@@ -19,16 +64,6 @@ steps:
       cd ../b
       git clone --depth=30 https://github.com/acidanthera/OpenCorePkg.git
       cd OpenCorePkg
-      # Patch Build Tool
-      curl -# -L -O "https://raw.githubusercontent.com/acidanthera/ocbuild/master/efibuild.sh"
-      chmod +x efibuild.sh
-      
-      sed -i -e 's/--depth=1/--depth=30/g' efibuild.sh
-      sed -i -e 's/.dsc"/.dsc" \| xcpretty/g' efibuild.sh
-      sed -i -e 's/updaterepo "https\:\/\/github.com\/acidanthera\/audk" UDK master || exit 1/git clone --recursive https\:\/\/github.com\/acidanthera\/audk --depth=1 UDK || exit 1/' efibuild.sh
-      sed "s/prompt \"Install prebuilt mtoc automatically?\"//g" efibuild.sh
-      sed -i -e 's/src=.*/src=\$\(cat efibuild.sh\) \&\& eval \"\$src\" \|\| exit 1/g' build_oc.tool
-      sed -i -e 's/ARCHS=.*/ARCHS=\(X64\)/g' build_oc.tool
       ./build_oc.tool
       cp -f Binaries/* ../
       cd ../
