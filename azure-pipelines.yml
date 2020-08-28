@@ -138,7 +138,7 @@ steps:
       done;
 
       rm -rf Lilu.kext
-      name=HackinPlugins_`date +%Y%m%d%H`.zip
+      name=HackinPlugins_`date +%Y%m%d`.zip
       zip -q -r $name *
       ls
       mkdir ../a/Artifacts
