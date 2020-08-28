@@ -6,6 +6,14 @@
 trigger: none
 pr: none
 
+schedules:
+- cron: "0 */8 * * *" # DAMN BUG!!!!!!!!!!!!!!!!!!!!!!!!!
+  displayName: Schedule Build
+  branches:
+    include:
+    - master
+  always: true
+
 pool:
   vmImage: 'macOS-latest'
 
