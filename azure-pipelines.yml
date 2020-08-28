@@ -138,10 +138,11 @@ steps:
       done;
 
       rm -rf Lilu.kext
-      zip –q –r HackinPlugins_`date +%Y%m%d%H`.zip *
+      name=HackinPlugins_`date +%Y%m%d%H`.zip
+      zip -q -r $name *
       ls
       mkdir ../a/Artifacts
-      cp -f HackinPlugins_`date +%Y%m%d%H`.zip ../a/Artifacts
+      cp -f $name ../a/Artifacts
       ls $(Build.ArtifactStagingDirectory)/Artifacts
 
 - task: CopyFilesOverSSH@0
