@@ -159,7 +159,7 @@ steps:
   inputs:
     gitHubConnection: 'github'
     repositoryName: '$(Build.Repository.Name)'
-    action: 'create'
+    action: 'edit'
     target: '$(Build.SourceVersion)'
     tagSource: 'userSpecifiedTag'
     tag: '$(BuildDate)'
@@ -167,7 +167,7 @@ steps:
     releaseNotesSource: 'inline'
     releaseNotesInline: 'Hackintosh全家桶每日编译更新'
     assets: '$(Build.ArtifactStagingDirectory)/Artifacts/*.zip'
-    isPreRelease: true
+    isPreRelease: false
     addChangeLog: false
 
 
