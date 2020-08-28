@@ -159,12 +159,14 @@ steps:
     repositoryName: '$(Build.Repository.Name)'
     action: 'create'
     target: '$(Build.SourceVersion)'
-    tagSource: 'gitTag'
-    tagPattern: '$(BuildDate)'
+    tagSource: 'userSpecifiedTag'
+    tag: '$(BuildDate)'
     title: '$(BuildDate)'
     releaseNotesSource: 'inline'
-    releaseNotesInline: 'Hackintosh全家桶每日更新'
+    releaseNotesInline: 'Hackintosh全家桶每日编译更新'
     assets: '$(Build.ArtifactStagingDirectory)/Artifacts/*.zip'
     isDraft: true
     addChangeLog: false
+
+
 
