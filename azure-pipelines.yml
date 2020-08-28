@@ -67,12 +67,13 @@ steps:
       ./build_oc.tool
       cp -f Binaries/* ../
       cd ../
+      rm -rf OpenCorePkg
       git clone https://github.com/acidanthera/Lilu.git
       cd Lilu
       xcodebuild -configuration Debug -arch x86_64
       xcodebuild -configuration Release -arch x86_64
       unzip build/Debug/*.zip
-      cp -Rf build/Debug/*.kext ../
+      cp -Rf build/Debug/*.kext ../Lilu.kext
       cp -f build/Debug/*.zip ../
       cp -f build/Debug/*.zip ../
       cd ../
@@ -106,11 +107,11 @@ steps:
       for plugin in ${hackinLiluPlugins[*]}; do
         git clone -q ${plugin##*,} ${plugin%,*} -b master --depth=1
         cd ${plugin%,*}
-        cp -Rf ../*.kext .
+        cp -Rf ../Lilu.kext .
         xcodebuild -configuration Release -arch x86_64
         xcodebuild -configuration Debug -arch x86_64
-        cp -f build/Release/*.zip ../
-        cp -f build/Debug/*.zip ../
+        cp -f build/Release/* ../
+        cp -f build/Debug/* ../
         cd ../
         rm -rf cd ${plugin%,*}
       done;
@@ -120,10 +121,15 @@ steps:
         cd ${plugin%,*}
         xcodebuild -configuration Release -arch x86_64
         xcodebuild -configuration Debug -arch x86_64
-        cp -f build/Release/*.zip ../
-        cp -f build/Debug/*.zip ../
+        cp -f build/Release/* ../
+        cp -f build/Debug/* ../
         cd ../
         rm -rf cd ${plugin%,*}
       done;
 
-      rm -rf *.kext
+      rm -rf Lilu.kext
+
+      mkdir ../a/Artifacts
+      cp *.zip ../a/Artifacts
+      cp -Rf *.kext ../Artifacts
+      ls $(Build.ArtifactStagingDirectory)/Artifacts 
