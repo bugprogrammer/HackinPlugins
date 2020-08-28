@@ -110,12 +110,15 @@ steps:
         cp -Rf ../Lilu.kext .
         xcodebuild -configuration Release -arch x86_64
         xcodebuild -configuration Debug -arch x86_64
-        cp -f build/Release/*.zip ../
-        cp -f build/Debug/*.zip ../
-        cp -Rf build/Release/*.kext ../
-        cp -Rf build/Debug/*.kext ../
+        if [ -e build/Release/*.zip ]; then
+          cp -f build/Release/*.zip ../
+          cp -f build/Debug/*.zip ../
+        else
+          cp -Rf build/Release/*.kext ../
+          cp -Rf build/Debug/*.kext ../
+        fi
         cd ../
-        rm -rf cd ${plugin%,*}
+        rm -rf ${plugin%,*}
       done;
 
       for plugin in ${hackinPlugins[*]}; do
@@ -123,19 +126,23 @@ steps:
         cd ${plugin%,*}
         xcodebuild -configuration Release -arch x86_64
         xcodebuild -configuration Debug -arch x86_64
-        cp -f build/Release/*.zip ../
-        cp -f build/Debug/*.zip ../
-        cp -Rf build/Release/*.kext ../
-        cp -Rf build/Debug/*.kext ../
+        if [ -e build/Release/*.zip ]; then
+          cp -f build/Release/*.zip ../
+          cp -f build/Debug/*.zip ../
+        else
+          cp -Rf build/Release/*.kext ../
+          cp -Rf build/Debug/*.kext ../
+        fi
         cd ../
-        rm -rf cd ${plugin%,*}
+        rm -rf ${plugin%,*}
       done;
 
       rm -rf Lilu.kext
-      zip –q –r HackinPlugins.zip *
-
+      name=HackinPlugins_`date +%Y%m%d%H`.zip
+      zip –q –r $name *
+      ls
       mkdir ../a/Artifacts
-      cp -f HackinPlugins_`date +%Y%m%d%H`.zip ../a/Artifacts
+      cp -f $name ../a/Artifacts
       ls $(Build.ArtifactStagingDirectory)/Artifacts
 
 - task: CopyFilesOverSSH@0
