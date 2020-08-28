@@ -110,8 +110,10 @@ steps:
         cp -Rf ../Lilu.kext .
         xcodebuild -configuration Release -arch x86_64
         xcodebuild -configuration Debug -arch x86_64
-        cp -f build/Release/* ../
-        cp -f build/Debug/* ../
+        cp -f build/Release/*.zip ../
+        cp -f build/Debug/*.zip ../
+        cp -Rf build/Release/*.kext ../
+        cp -Rf build/Debug/*.kext ../
         cd ../
         rm -rf cd ${plugin%,*}
       done;
@@ -121,15 +123,20 @@ steps:
         cd ${plugin%,*}
         xcodebuild -configuration Release -arch x86_64
         xcodebuild -configuration Debug -arch x86_64
-        cp -f build/Release/* ../
-        cp -f build/Debug/* ../
+        cp -f build/Release/*.zip ../
+        cp -f build/Debug/*.zip ../
+        cp -Rf build/Release/*.kext ../
+        cp -Rf build/Debug/*.kext ../
         cd ../
         rm -rf cd ${plugin%,*}
       done;
 
       rm -rf Lilu.kext
+      zip –q –r HackinPlugins.zip *
 
       mkdir ../a/Artifacts
-      cp *.zip ../a/Artifacts
-      cp -Rf *.kext ../Artifacts
-      ls $(Build.ArtifactStagingDirectory)/Artifacts 
+      cp -f HackinPlugins_`date +%Y%m%d%H`.zip ../a/Artifacts
+      ls $(Build.ArtifactStagingDirectory)/Artifacts
+
+      
+       
