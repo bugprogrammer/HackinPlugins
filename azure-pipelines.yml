@@ -85,7 +85,7 @@ steps:
       unzip build/Debug/*.zip
       cp -Rf build/Debug/*.kext ../Lilu.kext
       cp -f build/Debug/*.zip ../
-      cp -f build/Debug/*.zip ../
+      cp -f build/Release/*.zip ../
       cd ../
       rm -rf Lilu
 
