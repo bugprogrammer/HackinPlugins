@@ -190,6 +190,7 @@ steps:
 
       rm -rf Lilu.kext
       rm -rf VoodooInput
+      rm -rf MacKernelSDK
       name=HackinPlugins_`date +%Y%m%d`.zip
       zip -q -r $name *
       ls
