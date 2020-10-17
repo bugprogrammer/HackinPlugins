@@ -161,14 +161,14 @@ steps:
         cp -Rf ../MacKernelSDK .
         if [[ "VoodooI2C" =~ ${plugin%,*} ]]; then
           cp -Rf ../VoodooInput ./Dependencies/
-          git submodule init >> "$logs" && git submodule update >> "$logs"
+          git submodule init && git submodule update
           echo "VoodooI2C: 从 Build Phrase 中移除 Linting 和 Generate Documentation 来避免安装 cpplint 和 cldoc"
           lintingPhr=$(grep -n "Linting" VoodooI2C/VoodooI2C.xcodeproj/project.pbxproj) && lintingPhr=${lintingPhr%%:*}
           /usr/bin/sed -i '' "${lintingPhr}d" VoodooI2C/VoodooI2C.xcodeproj/project.pbxproj
           gDPhr=$(grep -n "Generate Documentation" VoodooI2C/VoodooI2C.xcodeproj/project.pbxproj) && gDPhr=${gDPhr%%:*}
           /usr/bin/sed -i '' "${gDPhr}d" VoodooI2C/VoodooI2C.xcodeproj/project.pbxproj
-          xcodebuild -scheme VoodooI2C -configuration Release -derivedDataPath . -arch x86_64 CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO >> "$logs" || exit 1
-          xcodebuild -scheme VoodooI2C -configuration Debug -derivedDataPath . -arch x86_64 CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO >> "$logs" || exit 1
+          xcodebuild -scheme VoodooI2C -configuration Release -derivedDataPath . -arch x86_64 CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO || exit 1
+          xcodebuild -scheme VoodooI2C -configuration Debug -derivedDataPath . -arch x86_64 CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO || exit 1
         else
           cp -Rf ../VoodooInput .
           xcodebuild -configuration Release -arch x86_64 CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
