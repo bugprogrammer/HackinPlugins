@@ -123,8 +123,10 @@ steps:
       for plugin in ${hackinLiluPlugins[*]}; do
         git clone -q ${plugin##*,} ${plugin%,*} -b master --depth=1
         cd ${plugin%,*}
-        cp -Rf ../Lilu.kext .
-        cp -Rf ../MacKernelSDK .
+        if [ ! -e Lilu.kext ]; then
+          cp -Rf ../Lilu.kext .
+          cp -Rf ../MacKernelSDK .
+        fi
         xcodebuild -configuration Release -arch x86_64 CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
         xcodebuild -configuration Debug -arch x86_64 CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
         if [ -e build/Release/*.zip ]; then
