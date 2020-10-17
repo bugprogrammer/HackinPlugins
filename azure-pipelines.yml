@@ -78,48 +78,53 @@ steps:
       cp -f Binaries/* ../
       cd ../
       rm -rf OpenCorePkg
+      git clone https://github.com/acidanthera/MacKernelSDK >/dev/null || exit 1
       git clone https://github.com/acidanthera/Lilu.git
       cd Lilu
-      xcodebuild -configuration Debug -arch x86_64
-      xcodebuild -configuration Release -arch x86_64
+      cp -Rf ../MacKernelSDK .
+      xcodebuild -configuration Debug -arch x86_64 CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
+      xcodebuild -configuration Release -arch x86_64 CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
       unzip build/Debug/*.zip
       cp -Rf build/Debug/*.kext ../Lilu.kext
       cp -f build/Debug/*.zip ../
       cp -f build/Release/*.zip ../
       cd ../
       rm -rf Lilu
+      git clone -q https://github.com/acidanthera/VoodooInput.git -b master --depth=1
+      cd VoodooInput
+      cp -Rf ../MacKernelSDK . >> "$logs" || exit 1
+      xcodebuild -configuration Release -arch x86_64 CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
+      xcodebuild -configuration Debug -arch x86_64 CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
+      mkdir -p ../VoodooInputRelease && cp -Rf build/Release ../VoodooInputRelease && cp -Rf build/Debug ../VoodooInputRelease
+      rm -rf VoodooInput
 
       hackinLiluPlugins=('AirportBrcmFixup,https://github.com/acidanthera/AirportBrcmFixup.git'
       'AppleALC,https://github.com/acidanthera/AppleALC.git'
-      'AMFIExemption,https://github.com/osy86/AMFIExemption.git'
       'ATH9KFixup,https://github.com/chunnann/ATH9KFixup.git'
-      'BT4LEContinuityFixup,https://github.com/acidanthera/BT4LEContinuityFixup.git'
       'CPUFriend,https://github.com/acidanthera/CPUFriend.git'
       'CpuTscSync,https://github.com/lvs1974/CpuTscSync.git'
       'DebugEnhancer,https://github.com/acidanthera/DebugEnhancer.git'
-      'DiskArbitrationFixup,https://github.com/Goldfish64/DiskArbitrationFixup.git'
       'HibernationFixup,https://github.com/acidanthera/HibernationFixup.git'
-      'Innie,https://github.com/cdf/Innie.git'
-      'MacProMemoryNotificationDisabler,https://github.com/IOIIIO/MacProMemoryNotificationDisabler.git'
-      'NightShiftEnabler,https://github.com/cdf/NightShiftEnabler.git'
-      'NoTouchID,https://github.com/al3xtjames/NoTouchID.git'
       'NVMeFix,https://github.com/acidanthera/NVMeFix.git'
       'RTCMemoryFixup,https://github.com/acidanthera/RTCMemoryFixup.git'
-      'SystemProfilerMemoryFixup,https://github.com/Goldfish64/SystemProfilerMemoryFixup.git'
-      'ThunderboltReset,https://github.com/osy86/ThunderboltReset.git'
       'VirtualSMC,https://github.com/acidanthera/VirtualSMC.git'
       'WhateverGreen,https://github.com/acidanthera/WhateverGreen.git')
 
       hackinPlugins=('IntelMausi,https://github.com/acidanthera/IntelMausi.git'
       'AtherosE2200Ethernet,https://github.com/Mieze/AtherosE2200Ethernet.git'
-      'RTL8111_driver_for_OS_X,https://github.com/Mieze/RTL8111_driver_for_OS_X.git')
+      'RTL8111_driver_for_OS_X,https://github.com/Mieze/RTL8111_driver_for_OS_X.git'
+      'LucyRTL8125Ethernet,https://github.com/Mieze/LucyRTL8125Ethernet.git')
+
+      voodooinputPlugins=('VoodooPS2,https://github.com/acidanthera/VoodooPS2.git'
+      'VoodooI2C,https://github.com/VoodooI2C/VoodooI2C.git')
 
       for plugin in ${hackinLiluPlugins[*]}; do
         git clone -q ${plugin##*,} ${plugin%,*} -b master --depth=1
         cd ${plugin%,*}
         cp -Rf ../Lilu.kext .
-        xcodebuild -configuration Release -arch x86_64
-        xcodebuild -configuration Debug -arch x86_64
+        cp -Rf ../MacKernelSDK .
+        xcodebuild -configuration Release -arch x86_64 CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
+        xcodebuild -configuration Debug -arch x86_64 CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
         if [ -e build/Release/*.zip ]; then
           cp -f build/Release/*.zip ../
           cp -f build/Debug/*.zip ../
@@ -134,8 +139,9 @@ steps:
       for plugin in ${hackinPlugins[*]}; do
         git clone -q ${plugin##*,} ${plugin%,*} -b master --depth=1
         cd ${plugin%,*}
-        xcodebuild -configuration Release -arch x86_64
-        xcodebuild -configuration Debug -arch x86_64
+        cp -Rf ../MacKernelSDK .
+        xcodebuild -configuration Release -arch x86_64 CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
+        xcodebuild -configuration Debug -arch x86_64 CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
         if [ -e build/Release/*.zip ]; then
           cp -f build/Release/*.zip ../
           cp -f build/Debug/*.zip ../
@@ -147,7 +153,38 @@ steps:
         rm -rf ${plugin%,*}
       done;
 
+      for plugin in ${voodooinputPlugins[*]}; do
+        git clone -q ${plugin##*,} ${plugin%,*} -b master --depth=1
+        cd ${plugin%,*}
+        cp -Rf ../MacKernelSDK .
+        cp -Rf ../VoodooInputRelease ./VoodooInput
+        if [[ "VoodooI2C" =~ ${plugin%,*} ]]; then
+          git submodule init >> "$logs" && git submodule update >> "$logs"
+          echo "VoodooI2C: 从 Build Phrase 中移除 Linting 和 Generate Documentation 来避免安装 cpplint 和 cldoc"
+          lintingPhr=$(grep -n "Linting" VoodooI2C/VoodooI2C.xcodeproj/project.pbxproj) && lintingPhr=${lintingPhr%%:*}
+          /usr/bin/sed -i '' "${lintingPhr}d" VoodooI2C/VoodooI2C.xcodeproj/project.pbxproj
+          gDPhr=$(grep -n "Generate Documentation" VoodooI2C/VoodooI2C.xcodeproj/project.pbxproj) && gDPhr=${gDPhr%%:*}
+          /usr/bin/sed -i '' "${gDPhr}d" VoodooI2C/VoodooI2C.xcodeproj/project.pbxproj
+          xcodebuild -scheme VoodooI2C -configuration Release -derivedDataPath . -arch x86_64 CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO >> "$logs" || exit 1
+          xcodebuild -scheme VoodooI2C -configuration Debug -derivedDataPath . -arch x86_64 CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO >> "$logs" || exit 1
+        else
+          xcodebuild -configuration Release -arch x86_64 CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
+          xcodebuild -configuration Debug -arch x86_64 CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
+        fi
+
+        if [ -e build/Products/Release/*.zip ]; then
+          cp -f build/Products/Release/*.zip ../
+          cp -f build/Products/Debug/*.zip ../
+        else
+          cp -Rf Build/Products/Release/*.kext ../
+          cp -Rf Build/Products/Debug/*.kext ../
+        fi
+        cd ../
+        rm -rf ${plugin%,*}
+      done;
+
       rm -rf Lilu.kext
+      rm -rf VoodooInputRelease
       name=HackinPlugins_`date +%Y%m%d`.zip
       zip -q -r $name *
       ls
