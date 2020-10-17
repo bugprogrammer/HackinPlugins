@@ -157,8 +157,8 @@ steps:
         git clone -q ${plugin##*,} ${plugin%,*} -b master --depth=1
         cd ${plugin%,*}
         cp -Rf ../MacKernelSDK .
-        cp -Rf ../VoodooInputRelease ./VoodooInput
         if [[ "VoodooI2C" =~ ${plugin%,*} ]]; then
+          cp -Rf ../VoodooInputRelease ./Dependencies/VoodooInput
           git submodule init >> "$logs" && git submodule update >> "$logs"
           echo "VoodooI2C: 从 Build Phrase 中移除 Linting 和 Generate Documentation 来避免安装 cpplint 和 cldoc"
           lintingPhr=$(grep -n "Linting" VoodooI2C/VoodooI2C.xcodeproj/project.pbxproj) && lintingPhr=${lintingPhr%%:*}
@@ -168,6 +168,7 @@ steps:
           xcodebuild -scheme VoodooI2C -configuration Release -derivedDataPath . -arch x86_64 CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO >> "$logs" || exit 1
           xcodebuild -scheme VoodooI2C -configuration Debug -derivedDataPath . -arch x86_64 CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO >> "$logs" || exit 1
         else
+          cp -Rf ../VoodooInputRelease ./VoodooInput
           xcodebuild -configuration Release -arch x86_64 CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
           xcodebuild -configuration Debug -arch x86_64 CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
         fi
