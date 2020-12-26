@@ -198,13 +198,6 @@ steps:
       cp -f $name ../a/Artifacts
       ls $(Build.ArtifactStagingDirectory)/Artifacts
 
-- task: CopyFilesOverSSH@0
-  inputs:
-    sshEndpoint: 'vps'
-    sourceFolder: '$(Build.ArtifactStagingDirectory)/Artifacts'
-    contents: '**'
-    targetFolder: '/var/www/downloads/HackinPlugins'
-    readyTimeout: '20000'
 
 - task: GitHubRelease@1
   inputs:
