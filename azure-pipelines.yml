@@ -200,32 +200,19 @@ steps:
       ls $(Build.ArtifactStagingDirectory)/Artifacts
 
 
-# - task: GitHubRelease@1
-#   inputs:
-#     gitHubConnection: 'github'
-#     repositoryName: '$(Build.Repository.Name)'
-#     action: 'edit'
-#     target: '$(Build.SourceVersion)'
-#     tagSource: 'userSpecifiedTag'
-#     tag: '$(BuildDate)'
-#     title: '$(BuildDate)'
-#     releaseNotesSource: 'inline'
-#     releaseNotesInline: 'Hackintosh全家桶每日编译更新'
-#     assets: '$(Build.ArtifactStagingDirectory)/Artifacts/*.zip'
-#     isPreRelease: false
-#     addChangeLog: false
-
 - task: GitHubRelease@1
   inputs:
     gitHubConnection: 'github'
     repositoryName: '$(Build.Repository.Name)'
-    action: 'edit'
+    action: 'create'
     target: '$(Build.SourceVersion)'
+    tagSource: 'userSpecifiedTag'
     tag: '$(BuildDate)'
     title: '$(BuildDate)'
     releaseNotesSource: 'inline'
     releaseNotesInline: 'Hackintosh全家桶每日编译更新'
     assets: '$(Build.ArtifactStagingDirectory)/Artifacts/*.zip'
-    assetUploadMode: 'replace'
+    isPreRelease: false
     addChangeLog: false
+
 
